@@ -1,0 +1,231 @@
+<html>
+	<head>
+		<title>Math Solver</title>
+		<script
+  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+  crossorigin="anonymous"></script>
+
+		<style>
+			.symbol {
+				background-color:orange;
+			}
+			td {
+				border:1px solid black;
+				height:50px;
+				width:50px;
+				text-align: center;
+			}
+			button {
+				height:inherit;
+				width:inherit;
+			}
+			#result {
+				height:50px;
+				width:390px;
+			}
+			td:empty {
+				background-color:gray;
+			}
+			td[data-symbol="="] {
+				background-color:green;
+			}
+		</style>
+	</head>
+	<body>
+		<table>
+			<tr>
+				<td><button id="1-1"></button></td>
+				<td><button id="1-2"></button></td>
+				<td><button id="1-3"></button></td>
+				<td><button id="1-4"></button></td>
+				<td><button id="1-5"></button></td>
+			</tr>
+			<tr>
+				<td><button id="2-1"></button></td>
+				<td><button id="2-2"></button></td>
+				<td><button id="2-3"></button></td>
+				<td><button id="2-4"></button></td>
+				<td><button id="2-5"></button></td>
+			</tr>
+			<tr>
+				<td><button id="3-1"></button></td>
+				<td><button id="3-2"></button></td>
+				<td><button id="3-3"></button></td>
+				<td><button id="3-4"></button></td>
+				<td><button id="3-5"></button></td>
+			</tr>
+			<tr>
+				<td><button id="4-1"></button></td>
+				<td><button id="4-2"></button></td>
+				<td><button id="4-3"></button></td>
+				<td><button id="4-4"></button></td>
+				<td><button id="4-5"></button></td>
+			</tr>
+			<tr>
+				<td><button id="5-1"></button></td>
+				<td><button id="5-2"></button></td>
+				<td><button id="5-3"></button></td>
+				<td><button id="5-4"></button></td>
+				<td><button id="5-5"></button></td>
+			</tr>
+		</table>
+		<h1 id="turns">Turns:</h1>
+		<script>
+		var player1 = "O";
+		var player2 = "X";
+		var player1Color = "red";
+		var player2Color = "blue";
+		var currentPlayer = "player1";
+		var gameRow = 5;
+		var gameCol = 5;
+		
+		//Code for user interface.
+			$('button').click(function() {
+				if ($(this).text() == "") {
+					if (currentPlayer=="player1") {
+						$(this).text(player1);
+						$(this).css('backgroundColor',player1Color);
+						currentPlayer = "player2";
+					}
+					else if (currentPlayer=="player2") {
+						$(this).text(player2);
+						$(this).css('backgroundColor',player2Color);
+						currentPlayer = "player1";
+					}
+					
+					//Check Winners
+					setTimeout(function() {
+					if (checkPlayer1Win()||checkPlayer2Win()) {
+						if (checkPlayer1Win) {alert("Player 1 Wins!");}
+						else if (checkPlayer2Win) {alert("Player 2 Wins!");}
+						//Cleanup old game, restart new game
+						currentPlayer="player1";
+						$('button').each(function() {
+							$(this).css('backgroundColor','buttonface');
+							$(this).text('');
+						});
+						$('#turns').text('Turns:');
+					}
+					},50);
+					$('#turns').text('Turns:'+currentPlayer);
+				}
+				else {
+					alert("This box is occupied!Please select a valid box");
+				}
+			});
+			
+		//Game Logic
+		function checkPlayer1Win() {
+			//Make a empty grid.
+			//CurentShape:[]
+			//ShapeToBe:
+			//	[*,*,*,*,*]
+			//	[*,*,*,*,*]
+			//	[*,*,*,*,*]
+			//	[*,*,*,*,*]
+			//	[*,*,*,*,*]
+			var checkedBox = [];
+			for (i=1;i<=gameRow;i++) {
+				//Make an array of rows
+				//Shape:[*,*,*,*,*]
+				var tempRow = [];
+				for (j=1;j<=gameCol;j++) {
+					//Method 'push' : add elements into an array
+					tempRow.push(IsPlayer1(i,j));
+				}
+				//Add the array into main grid.
+				checkedBox.push(tempRow);
+			}
+			if (checkDiagonal(checkedBox)||checkHorizontal(checkedBox)||checkVertical(checkedBox)) {
+				return true; //Player 1 Wins
+			}
+			else return false;
+		}
+		
+		function checkPlayer2Win() {
+			var checkedBox = [];
+			for (i=1;i<=gameRow;i++) {
+				var tempRow = [];
+				for (j=1;j<=gameCol;j++) {
+					tempRow.push(IsPlayer2(i,j));
+				}
+				checkedBox.push(tempRow);
+			}
+			if (checkDiagonal(checkedBox)||checkHorizontal(checkedBox)||checkVertical(checkedBox)) {
+				return true; //Player2 Wins!
+			}
+			else return false;
+		}
+		
+		function IsPlayer1(row,col) {
+			var currentBox = $('#'+row+'-'+col);
+			if (currentBox.text() == player1) {
+				return 1;
+			}
+			else return 0;
+		}
+		
+		function IsPlayer2(row,col) {
+			var currentBox = $('#'+row+'-'+col);
+			if (currentBox.text() == player2) {
+				return 1;
+			}
+			else return 0;
+		}
+		
+		function checkHorizontal(checkedBox) {
+			for (i=0;i<gameRow;i++) {
+				for (j=1;j<gameCol-1;j++) {
+					console.log(i+'|'+j);
+					var H1 = (checkedBox[i][j-1]==1);
+					var H2 = (checkedBox[i][j]==1);
+					var H3 = (checkedBox[i][j+1]==1);
+					
+					if (H1&&H2&&H3) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		
+		function checkVertical(checkedBox) {
+			for (i=1;i<gameRow-1;i++) {
+				for (j=0;j<gameCol;j++) {
+					var V1 = (checkedBox[i-1][j]==1);
+					var V2 = (checkedBox[i][j]==1);
+					var V3 = (checkedBox[i+1][j]==1);
+					
+					if (V1&&V2&&V3) {
+						return true;
+					}
+					
+				}
+			}
+			return false;
+		}
+		
+		function checkDiagonal(checkedBox) {
+		//In backslash pattern
+			for (i=1;i<gameRow-1;i++) {
+				for (j=1;j<gameCol-1;j++) {
+					var B = (checkedBox[i][j]==1);
+					//backslash pattern
+					var A = (checkedBox[i-1][j-1]==1);
+					var C = (checkedBox[i+1][j+1]==1);
+					//forwardslash pattern
+					var D = (checkedBox[i-1][j+1]==1);
+					var E = (checkedBox[i+1][j-1]==1);
+					
+					if ((A&&B&&C)||(B&&D&&E)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		</script>
+	</body>
+</html>
+
